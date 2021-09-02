@@ -1,0 +1,4 @@
+Изготовитель системы: Producer info_3.txt
+Название ОС: OS name info_3.txt
+Код продукта: Product code info_3.txt
+Тип системы: System type info_3.txt
