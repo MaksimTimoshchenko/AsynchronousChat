@@ -4,46 +4,25 @@ from socket import *
 
 
 def run(addr, port):
-    s = init_server(addr, port)
+    s = socket(AF_INET, SOCK_STREAM)
+    s.bind((addr, port))
+    s.listen()
+
 
     while True:
         client, _ = s.accept()
+        data = client.recv(1000000)
+        client_request = json.loads(data.decode('utf-8'))
+        print(client_request)
 
-        chunk = client.recv(1000000)
-        get_recieved_message(chunk)
-        send_response_message(client)
+        msg_data = {
+            "response": 200,
+            "alert":"Соединение установлено!"
+        }
+        msg = json.dumps(msg_data)
 
+        client.send(msg.encode('utf-8'))
         client.close()
-
-def init_server(addr, port):
-    try:
-        s = socket(AF_INET,SOCK_STREAM)
-        s.bind((addr, port))
-        s.listen()
-    except:
-        raise RuntimeError("Connection to server failed")
-
-    return s
-
-def get_recieved_message(chunk):
-    if chunk == b'':
-        raise RuntimeError("Socket connection broken")
-
-    client_request = json.loads(chunk.decode('utf-8'))
-    
-    print(client_request)
-    return client_request
-
-def send_response_message(client):
-    msg_data = {
-        "response": 200,
-        "alert":"Соединение установлено!"
-    }
-    msg = json.dumps(msg_data)
-    sent = client.send(msg.encode('utf-8'))
-
-    if sent == 0:
-        raise RuntimeError("Socket connection broken")
 
 if __name__ == '__main__':
     try:
