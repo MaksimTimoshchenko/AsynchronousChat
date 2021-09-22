@@ -66,7 +66,7 @@ if __name__ == '__main__':
                 assert False, "Unhandled option"
 
         if addr:
-            connect_server(addr, port)
+            connect_server(addr=addr, port=port)
         else:
             client_logger.critical(f'Failed to start client: error while getting options')
             print('main.py -a <addr:str> -p <port:int>')
