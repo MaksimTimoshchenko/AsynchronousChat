@@ -21,6 +21,6 @@ client_logger.setLevel(logging.INFO)
 def log(func):
     @wraps(func)
     def decorator(*args, **kwargs):
-        client_logger.info(f'Function {log.__name__}({args, kwargs}) called from {func.__name__}')
+        client_logger.info(f'Function {log.__name__}({args, kwargs}) called from function {func.__name__}')
         return func(*args, **kwargs)
     return decorator

@@ -18,11 +18,9 @@ handler.setFormatter(formater)
 server_logger.addHandler(handler)
 server_logger.setLevel(logging.INFO)
 
-server_logger_decorator = logging.getLogger('server')
-
 def log(func):
     @wraps(func)
     def decorator(*args, **kwargs):
-        server_logger.info(f'Function {log.__name__}({args, kwargs}) called from {func.__name__}')
+        server_logger.info(f'Function {log.__name__}({args, kwargs}) called from function {func.__name__}')
         return func(*args, **kwargs)
     return decorator
