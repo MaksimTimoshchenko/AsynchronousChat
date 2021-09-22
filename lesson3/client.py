@@ -3,23 +3,10 @@ import getopt, sys
 import json
 import time
 
-def connect_server(addr, port): 
-    s = init_connection(addr, port)
-    send_presence_message(s)
-    chunk = s.recv(1000000)
-    get_recieved_message(chunk)
-    s.close()
+def connect_server(addr, port):
+    s = socket(AF_INET,SOCK_STREAM)
+    s.connect((addr, port))
 
-def init_connection(addr, port):
-    try:
-        s = socket(AF_INET,SOCK_STREAM)
-        s.connect((addr, port))
-    except:
-        raise RuntimeError("Connection to server failed")
-
-    return s
-
-def send_presence_message(s):
     msg_data = {
         "action": "presence",
         "time": int(time.time()),
@@ -31,19 +18,11 @@ def send_presence_message(s):
     }
 
     msg = json.dumps(msg_data)
-    sent = s.send(msg.encode('utf-8'))
-
-    if sent == 0:
-        raise RuntimeError("Socket connection broken")
-
-def get_recieved_message(chunk):
-    if chunk == b'':
-        raise RuntimeError("Socket connection broken")
-
-    server_response = json.loads(chunk.decode('utf-8'))
+    s.send(msg.encode('utf-8'))
+    data = s.recv(1000000)
+    server_response = json.loads(data.decode('utf-8'))
     print(server_response)
-    return server_response
-
+    s.close()
 
 if __name__ == '__main__':
     try:
