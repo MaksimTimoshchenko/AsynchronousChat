@@ -2,10 +2,10 @@ import getopt, sys
 import json
 import time
 
-from log.client_log_config import client_logger
+from log.client_log_config import client_logger, log
 from socket import *
 
-
+@log
 def connect_server(addr, port): 
     s = init_connection(addr, port)
     send_presence_message(s)
