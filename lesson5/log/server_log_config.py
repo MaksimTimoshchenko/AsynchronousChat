@@ -1,4 +1,6 @@
+import inspect
 import logging
+
 from logging.handlers import TimedRotatingFileHandler
 from functools import wraps
 
@@ -21,6 +23,6 @@ server_logger.setLevel(logging.INFO)
 def log(func):
     @wraps(func)
     def decorator(*args, **kwargs):
-        server_logger.info(f'Function {log.__name__}({args, kwargs}) called from function {func.__name__}')
+        server_logger.info(f'Function {log.__name__}({args, kwargs}) called from function {inspect.stack()[1][3]}')
         return func(*args, **kwargs)
     return decorator
