@@ -1,10 +1,10 @@
 import getopt, sys
 import json
 
-from log.server_log_config import server_logger
+from log.server_log_config import server_logger, log
 from socket import *
 
-
+@log
 def run(addr, port):
     s = init_server(addr, port)
 
@@ -65,7 +65,7 @@ if __name__ == '__main__':
             else:
                 assert False, "Unhandled option"
 
-        run(addr, port)    
+        run(addr=addr, port=port)    
     except getopt.GetoptError as err:
         server_logger.critical(f'Failed to start server: error while getting options')
         print('Error while getting options')
