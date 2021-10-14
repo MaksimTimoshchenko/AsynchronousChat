@@ -8,8 +8,8 @@ from tables import Client, Contact
 Base = declarative_base()
 
 class Storage:
-    def __init__(self):
-        self._engine = create_engine('sqlite:///db.sqlite')
+    def __init__(self, app):
+        self._engine = create_engine(f'sqlite:///{app}_db.sqlite')
         self._Session = sessionmaker(self._engine)
 
     def insert(self, BaseObject, *args):
@@ -39,7 +39,15 @@ class Storage:
             server_logger.critical(f'Executed: {BaseObject}.get_list() with Exception: {e}')
             pass
 
-class ContactStorage(Storage):
+class StorageServer(Storage):
+    def __init__(self):
+        super().__init__('server')
+
+class StorageClient(Storage):
+    def __init__(self):
+        super().__init__('client')
+
+class ContactStorage(StorageServer):
     def __init__(self):
         super().__init__()
 
@@ -57,7 +65,7 @@ class ContactStorage(Storage):
         except Exception as e:
             server_logger.critical(f'Executed: ContactStorage.get_by_client_and_contactee({client_id=}, {contactee_client_id=}) with Exception: {e}')
 
-class ClientStorage(Storage):
+class ClientStorage(StorageServer):
     def __init__(self):
         super().__init__()
 

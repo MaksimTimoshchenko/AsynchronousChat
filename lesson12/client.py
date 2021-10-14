@@ -1,3 +1,4 @@
+import datetime
 import getopt, sys
 import json
 import re
@@ -7,8 +8,8 @@ import uuid
 from log.client_log_config import client_logger
 from socket import *
 from threading import Thread
-from tables import Contact
-from storage import Storage, ClientStorage, ContactStorage
+from client_tables import ClientContact, MessageHistory
+from storage import StorageClient
 
 
 class Client:
@@ -93,9 +94,17 @@ class Client:
                     msg = json.dumps(msg_data)
                     try:
                         self.socket.send(msg.encode('utf-8'))
-                        
+
+                        recipient_account_name = ''
+                        if 'recipient_account_name' in msg_data and msg_data['recipient_account_name']:
+                            recipient_account_name = msg_data['recipient_account_name']
+                            
+                        StorageClient().insert(MessageHistory, self.account_name, recipient_account_name, msg_data['message'], datetime.datetime.now())
                         if msg_data['action'] in self.commands:
                             self.server_responded = False
+
+                            if msg_data['action'] == 'add_contact':
+                                StorageClient().insert(ClientContact, self.account_name, msg_data['command_username'])
                     except Exception:
                         client_logger.critical(f'Failed to send message')
 
@@ -124,6 +133,10 @@ class Client:
                     if not contact_account_name:
                         print('Ошибка: пустой логин контакта!\nДля корректной работы команды необходимо ввести логин контакта через пробел после команды /add_contact|del_contact {логин_контакта}\n', end='')
                         return None
+        elif entered_msg.startswith('@'):
+            result = re.search(r'\@([\w\S]*)([\w\s\S]*)', entered_msg)
+            recipient_account_name = result.group(1)
+            msg_data['recipient_account_name'] = recipient_account_name
 
         return msg_data
 

@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.schema import ForeignKey
 
 
-engine = create_engine('sqlite:///db.sqlite', echo=True)
+engine = create_engine('sqlite:///server_db.sqlite', echo=True)
 Base = declarative_base()
 
 class Client(Base):
@@ -66,4 +66,3 @@ class Contact(Base):
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
-    

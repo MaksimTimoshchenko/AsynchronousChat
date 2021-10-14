@@ -8,7 +8,7 @@ from log.server_log_config import server_logger
 from PortDescriptor import PortDescriptor
 from socket import *
 from tables import Client, Contact
-from storage import Storage, ClientStorage, ContactStorage
+from storage import StorageServer, ClientStorage, ContactStorage
 
 
 class Server:
@@ -112,14 +112,9 @@ class Server:
                                     response = json.dumps(response_data).encode('utf-8')
                                     
                                     s.send(response)
-                        elif request["user"]["account_name"] != self.clients[s]:
-                            if request["message"].startswith('@'):
-                                result = re.search(r'\@([\w\S]*)([\w\s\S]*)', request["message"])
-                                message_recipient = result.group(1)
-                                # message_text = result.group(2)
-
-                                if message_recipient == self.clients[s]:
-                                    # request["message"] = message_text
+                        elif request['action'] == 'message' and request["user"]["account_name"] != self.clients[s]:
+                            if 'recipient_account_name' in request:
+                                if 'recipient_account_name' in request and request['recipient_account_name'] == self.clients[s]:
                                     response = json.dumps(request).encode('utf-8')
                                     s.send(response)
                             else:
@@ -147,17 +142,17 @@ class Server:
         client_storage = ClientStorage()
         client = client_storage.get_by_account_name(account_name)
         if client is None:
-            Storage().insert(Client, account_name, '')
+            StorageServer().insert(Client, account_name, '')
             client = client_storage.get_by_account_name(account_name)
             
         contact_account_name = request["command_username"]
         contact_client = client_storage.get_by_account_name(contact_account_name)
         if contact_client is None:
-            Storage().insert(Client, contact_account_name, '')
+            StorageServer().insert(Client, contact_account_name, '')
             contact_client = client_storage.get_by_account_name(contact_account_name)
 
         
-        Storage().insert(Contact, client.id, contact_client.id)
+        StorageServer().insert(Contact, client.id, contact_client.id)
         
         contact_storage = ContactStorage()
         contact = contact_storage.get_by_client_and_contactee(client.id, contact_client.id)
@@ -178,7 +173,7 @@ class Server:
                 contact = contact_storage.get_by_client_and_contactee(client.id, contact_client.id)
                 print(contact)
                 if contact:
-                    Storage().delete(Contact, contact.id)
+                    StorageServer().delete(Contact, contact.id)
 
 
 def main(address, port):
